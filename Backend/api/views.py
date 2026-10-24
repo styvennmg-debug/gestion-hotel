@@ -14,7 +14,8 @@ from .serializers import (
     PaiementSerializer
 )
 
-
+from django.db import connection
+from django.http import JsonResponse
 # =========================================================
 # AUTHENTIFICATION
 # =========================================================
