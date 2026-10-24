@@ -2,27 +2,45 @@
 const API_BASE_URL =
   "https://gestion-hotel-backend-x1st.onrender.com/api";
 
+async function getCsrfToken() {
+  const response = await fetch(`${API_BASE_URL}/csrf/`, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      "Impossible de récupérer le jeton CSRF auprès de Django."
+    );
+  }
+
+  const data = await response.json();
+
+  if (!data.csrfToken) {
+    throw new Error("Django n'a pas fourni le jeton CSRF.");
+  }
+
+  return data.csrfToken;
+}
+
 async function apiRequest(endpoint, options = {}) {
-  const token = localStorage.getItem("hotelToken");
+  const method = (options.method || "GET").toUpperCase();
 
   const headers = {
-    ...(options.body
-      ? { "Content-Type": "application/json" }
-      : {}),
+    ...(options.body ? { "Content-Type": "application/json" } : {}),
     ...(options.headers || {}),
   };
 
-  if (token) {
-    headers.Authorization = `Token ${token}`;
+  if (!["GET", "HEAD", "OPTIONS", "TRACE"].includes(method)) {
+    headers["X-CSRFToken"] = await getCsrfToken();
   }
 
-  const response = await fetch(
-    `${API_BASE_URL}${endpoint}`,
-    {
-      ...options,
-      headers,
-    }
-  );
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    method,
+    headers,
+    credentials: "include",
+  });
 
   if (response.status === 401) {
     throw new Error(
@@ -32,7 +50,7 @@ async function apiRequest(endpoint, options = {}) {
 
   if (response.status === 403) {
     throw new Error(
-      "Accès refusé. Vérifie tes autorisations."
+      "Accès refusé. Vérifie ta session ou la protection CSRF."
     );
   }
 
@@ -55,19 +73,15 @@ async function apiRequest(endpoint, options = {}) {
   try {
     data = JSON.parse(text);
   } catch {
-    console.error("Réponse non JSON reçue :", text);
-
-    throw new Error(
-      `Réponse invalide du serveur (${response.status}).`
-    );
+    throw new Error("Le serveur a renvoyé une réponse invalide.");
   }
 
   if (!response.ok) {
     throw new Error(
       data.detail ||
-      data.message ||
-      data.error ||
-      `Erreur HTTP ${response.status}.`
+        data.message ||
+        data.error ||
+        `Erreur HTTP ${response.status}.`
     );
   }
 

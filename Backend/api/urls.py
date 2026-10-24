@@ -1,27 +1,16 @@
+
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from django.db import connection
-from django.http import JsonResponse
-
 
 from .views import (
     LoginView,
+    LogoutView,
     ChambreViewSet,
     ClientViewSet,
     ReservationViewSet,
     PaiementViewSet,
-    verification_base
+    csrf_token_view,
 )
-
-
-from .views import (
-    LoginView,
-    ChambreViewSet,
-    ClientViewSet,
-    ReservationViewSet,
-    PaiementViewSet
-)
-
 
 router = DefaultRouter()
 
@@ -49,18 +38,28 @@ router.register(
     basename='paiement'
 )
 
-
 urlpatterns = [
-
-    # Authentification
+    # Connexion
     path(
         'login/',
         LoginView.as_view(),
         name='login'
     ),
 
+    # Déconnexion
+    path(
+        'logout/',
+        LogoutView.as_view(),
+        name='logout'
+    ),
 
- 
+    # Cookie CSRF
+    path(
+        'csrf/',
+        csrf_token_view,
+        name='csrf-token'
+    ),
+
     # API CRUD
     path(
         '',

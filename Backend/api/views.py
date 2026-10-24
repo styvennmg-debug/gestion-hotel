@@ -1,12 +1,13 @@
-from django.contrib.auth import authenticate
-
+from django.contrib.auth import authenticate, login
+from django.middleware.csrf import get_token
 from rest_framework import viewsets, status
-from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django.contrib.auth import authenticate, login, logout
 from .models import Chambre, Client, Reservation, Paiement
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
 from .serializers import (
     ChambreSerializer,
     ClientSerializer,
@@ -20,13 +21,13 @@ from django.http import JsonResponse
 # AUTHENTIFICATION
 # =========================================================
 
+
 class LoginView(APIView):
 
     authentication_classes = []
     permission_classes = []
 
     def post(self, request):
-
         username = request.data.get("username")
         password = request.data.get("password")
 
@@ -40,6 +41,7 @@ class LoginView(APIView):
             )
 
         user = authenticate(
+            request=request._request,
             username=username,
             password=password
         )
@@ -53,15 +55,12 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        token, created = Token.objects.get_or_create(
-            user=user
-        )
+        login(request._request, user)
 
         return Response(
             {
                 "success": True,
                 "message": "Connexion réussie.",
-                "token": token.key,
                 "user": {
                     "id": user.id,
                     "username": user.username,
@@ -73,6 +72,21 @@ class LoginView(APIView):
             status=status.HTTP_200_OK
         )
 
+
+class LogoutView(APIView):
+    permission_classes = []
+    authentication_classes = []
+
+    def post(self, request):
+        logout(request._request)
+
+        return Response(
+            {
+                "success": True,
+                "message": "Déconnexion réussie."
+            },
+            status=status.HTTP_200_OK
+        )
 
 # =========================================================
 # CHAMBRES
@@ -287,3 +301,12 @@ def verification_base(request):
         return JsonResponse({
             "connexion": "echec"
         }, status=500)
+
+
+
+@ensure_csrf_cookie
+def csrf_token_view(request):
+    return JsonResponse({
+        "success": True,
+        "csrfToken": get_token(request),
+    })

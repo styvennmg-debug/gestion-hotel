@@ -1,21 +1,21 @@
+
 import { useState } from "react";
 import "./Login.css";
+
+const API_BASE_URL =
+  "https://gestion-hotel-backend-x1st.onrender.com/api";
 
 function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [showPassword, setShowPassword] = useState(false);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setError("");
 
-    // Vérification des champs
     if (!username.trim() || !password) {
       setError("Veuillez remplir tous les champs.");
       return;
@@ -24,92 +24,92 @@ function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      const response = await fetch("https://gestion-hotel-backend-x1st.onrender.com/api/login/", {
-        method: "POST",
+      // 1. Demander le jeton CSRF à Django.
+      const csrfResponse = await fetch(
+        `${API_BASE_URL}/csrf/`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+      if (!csrfResponse.ok) {
+        throw new Error(
+          "Impossible de préparer la connexion sécurisée."
+        );
+      }
 
-        body: JSON.stringify({
-          username: username.trim(),
-          password: password,
-        }),
-      });
+      const csrfData = await csrfResponse.json();
+      const csrfToken = csrfData.csrfToken;
+
+      if (!csrfToken) {
+        throw new Error(
+          "Django n'a pas fourni le jeton CSRF."
+        );
+      }
+
+      // 2. Envoyer les identifiants à Django.
+      const response = await fetch(
+        `${API_BASE_URL}/login/`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+          body: JSON.stringify({
+            username: username.trim(),
+            password,
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
         setError(
           data.message ||
+            data.detail ||
             "Nom d'utilisateur ou mot de passe incorrect."
         );
-
-        setLoading(false);
         return;
       }
 
-      // Enregistrer le token
-      localStorage.setItem(
-        "hotelToken",
-        data.token
-      );
-
-    
+      // 3. Conserver uniquement les informations utilisateur.
+      // La session est conservée dans le cookie Django.
       localStorage.setItem(
         "hotelUser",
         JSON.stringify(data.user)
       );
 
-    
-      localStorage.setItem(
-        "hotelLoggedIn",
-        "true"
-      );
-
-      setLoading(false);
-
-
       if (onLogin) {
-        onLogin();
+        onLogin(data.user);
       }
-
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error("Erreur de connexion :", err);
 
       setError(
-        "Impossible de contacter le serveur Django."
+        err.message ||
+          "Impossible de contacter le serveur Django."
       );
-
+    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="login-page">
-
-      {/* =========================
-          PARTIE GAUCHE
-      ========================== */}
-
       <div className="login-left">
-
         <div className="login-brand">
-
-          <div className="brand-logo">
-            H
-          </div>
-
+          <div className="brand-logo">H</div>
           <div>
             <h1>HOTEL</h1>
             <span>Management</span>
           </div>
-
         </div>
 
-
         <div className="login-presentation">
-
           <span className="welcome-badge">
             ✦ Système de gestion hôtelier
           </span>
@@ -126,151 +126,77 @@ function Login({ onLogin }) {
             et paiements depuis une seule interface.
           </p>
 
-
           <div className="login-features">
-
             <div className="feature-item">
-
-              <div className="feature-icon">
-                ✓
-              </div>
-
+              <div className="feature-icon">✓</div>
               <div>
-                <strong>
-                  Gestion des chambres
-                </strong>
-
+                <strong>Gestion des chambres</strong>
                 <span>
-                  Disponibilité et occupation
-                  en temps réel
+                  Disponibilité et occupation en temps réel
                 </span>
               </div>
-
             </div>
-
 
             <div className="feature-item">
-
-              <div className="feature-icon">
-                ✓
-              </div>
-
+              <div className="feature-icon">✓</div>
               <div>
-                <strong>
-                  Gestion des clients
-                </strong>
-
+                <strong>Gestion des clients</strong>
                 <span>
-                  Centralisez toutes les
-                  informations clients
+                  Centralisez toutes les informations clients
                 </span>
               </div>
-
             </div>
-
 
             <div className="feature-item">
-
-              <div className="feature-icon">
-                ✓
-              </div>
-
+              <div className="feature-icon">✓</div>
               <div>
-                <strong>
-                  Réservations et paiements
-                </strong>
-
+                <strong>Réservations et paiements</strong>
                 <span>
-                  Suivez facilement les opérations
-                  de votre hôtel
+                  Suivez facilement les opérations de votre hôtel
                 </span>
               </div>
-
             </div>
-
           </div>
-
         </div>
 
-
-        <div className="login-footer">
-        </div>
-
+        <div className="login-footer"></div>
       </div>
 
-
-      {/* =========================
-          PARTIE DROITE
-      ========================== */}
-
       <div className="login-right">
-
         <div className="login-card">
-
           <div className="mobile-logo">
-
-            <div className="brand-logo">
-              H
-            </div>
-
+            <div className="brand-logo">H</div>
             <div>
               <h1>HOTEL</h1>
               <span>Management</span>
             </div>
-
           </div>
 
-
           <div className="login-header">
-
             <span className="login-small-title">
               ESPACE ADMINISTRATEUR
             </span>
 
-            <h2>
-              Tongasoa
-            </h2>
+            <h2>Tongasoa</h2>
 
             <p>
-              Connectez-vous à votre espace
-              de gestion.
+              Connectez-vous à votre espace de gestion.
             </p>
-
           </div>
 
-
-          {/* ERREUR */}
-
           {error && (
-
             <div className="login-error">
               <span>!</span>
-
-              <p>
-                {error}
-              </p>
-
+              <p>{error}</p>
             </div>
-
           )}
 
-
-
           <form onSubmit={handleSubmit}>
-
-            {/* USERNAME */}
-
             <div className="form-group">
-
-              <label>
-                Nom d'utilisateur
-              </label>
+              <label>Nom d'utilisateur</label>
 
               <div className="input-wrapper">
-
-                <span className="input-icon">
-                  ♙
-                </span>
+                <span className="input-icon">♙</span>
 
                 <input
                   type="text"
@@ -281,38 +207,21 @@ function Login({ onLogin }) {
                   }
                   disabled={loading}
                   autoComplete="username"
+                  required
                 />
-
               </div>
-
             </div>
 
-
-            {/* PASSWORD */}
-
             <div className="form-group">
-
               <div className="password-label">
-
-                <label>
-                  Mot de passe
-                </label>
-
+                <label>Mot de passe</label>
               </div>
 
-
               <div className="input-wrapper">
-
-                <span className="input-icon">
-                  ●
-                </span>
+                <span className="input-icon">●</span>
 
                 <input
-                  type={
-                    showPassword
-                      ? "text"
-                      : "password"
-                  }
+                  type={showPassword ? "text" : "password"}
                   placeholder="Entrez votre mot de passe"
                   value={password}
                   onChange={(e) =>
@@ -320,37 +229,27 @@ function Login({ onLogin }) {
                   }
                   disabled={loading}
                   autoComplete="current-password"
+                  required
                 />
-
 
                 <button
                   type="button"
                   className="show-password"
                   onClick={() =>
-                    setShowPassword(
-                      !showPassword
-                    )
+                    setShowPassword(!showPassword)
                   }
                   disabled={loading}
                 >
-                  {showPassword
-                    ? "◉"
-                    : "◌"}
+                  {showPassword ? "◉" : "◌"}
                 </button>
-
               </div>
-
             </div>
-
-
-            {/* BOUTON */}
 
             <button
               type="submit"
               className="login-button"
               disabled={loading}
             >
-
               {loading ? (
                 <>
                   <span className="spinner"></span>
@@ -362,26 +261,15 @@ function Login({ onLogin }) {
                   <span>→</span>
                 </>
               )}
-
             </button>
-
           </form>
 
-
           <div className="login-security">
-
             <span></span>
-
-            <p>
-              Connexion sécurisée par Django
-            </p>
-
+            <p>Connexion sécurisée par Django</p>
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 }
