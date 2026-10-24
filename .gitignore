@@ -1,0 +1,31 @@
+# Environnements Python
+venv/
+.venv/
+env/
+
+# Base de données locale
+*.sqlite3
+*.db
+
+# Fichiers secrets
+.env
+.env.*
+!.env.example
+
+# Fichiers Python temporaires
+__pycache__/
+*.py[cod]
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Dépendances React
+node_modules/
+
+# Fichiers générés
+dist/
+build/
+
+# Fichiers locaux
+media/
