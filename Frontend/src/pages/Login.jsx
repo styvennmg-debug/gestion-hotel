@@ -24,7 +24,7 @@ function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/login/", {
+      const response = await fetch("https://gestion-hotel-1-lssj.onrender.com/api/login/", { 
         method: "POST",
 
         headers: {
@@ -115,9 +115,9 @@ function Login({ onLogin }) {
           </span>
 
           <h2>
-            Gérez votre hôtel
+            Tantano ny hotelinao
             <br />
-            <span>simplement.</span>
+            <span>ho voaharamaso</span>
           </h2>
 
           <p>
@@ -194,7 +194,6 @@ function Login({ onLogin }) {
 
 
         <div className="login-footer">
-          © 2026 Hotel Management
         </div>
 
       </div>
@@ -229,7 +228,7 @@ function Login({ onLogin }) {
             </span>
 
             <h2>
-              Bienvenue 
+              Tongasoa
             </h2>
 
             <p>
@@ -256,7 +255,6 @@ function Login({ onLogin }) {
           )}
 
 
-          {/* FORMULAIRE */}
 
           <form onSubmit={handleSubmit}>
 
@@ -372,7 +370,7 @@ function Login({ onLogin }) {
 
           <div className="login-security">
 
-            <span>🔒</span>
+            <span></span>
 
             <p>
               Connexion sécurisée par Django
