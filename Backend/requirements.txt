@@ -1,1 +1,1 @@
-  a s g i r e f = = 3 . 1 2 . 1   D j a n g o = = 5 . 2 . 1 7   d j a n g o - c o r s - h e a d e r s = = 4 . 9 . 0   d j a n g o r e s t f r a m e w o r k = = 3 . 1 8 . 0   m y s q l c l i e n t = = 2 . 2 . 8   s q l p a r s e = = 0 . 6 . 0   t z d a t a = = 2 0 2 6 . 3 gunicorn  
+  asgiref == 3.12.1  Djago == 5.2.17 django-cors-headers == 4.9.0   djangorestframework==3.18.0   mysqlclient==2.2.8   sqlparse==0.6.0   tzdata==2026.3  gunicorn  
