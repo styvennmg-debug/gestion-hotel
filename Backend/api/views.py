@@ -270,3 +270,19 @@ class PaiementViewSet(viewsets.ModelViewSet):
 
     queryset = Paiement.objects.all()
     serializer_class = PaiementSerializer
+
+def verification_base(request):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+
+        return JsonResponse({
+            "base": connection.vendor,
+            "connexion": "reussie"
+        })
+
+    except Exception:
+        return JsonResponse({
+            "connexion": "echec"
+        }, status=500)
