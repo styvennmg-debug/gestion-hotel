@@ -55,13 +55,13 @@ function Login({ onLogin }) {
         data.token
       );
 
-      // Enregistrer les informations utilisateur
+    
       localStorage.setItem(
         "hotelUser",
         JSON.stringify(data.user)
       );
 
-      // Indiquer que l'utilisateur est connecté
+    
       localStorage.setItem(
         "hotelLoggedIn",
         "true"
@@ -69,7 +69,7 @@ function Login({ onLogin }) {
 
       setLoading(false);
 
-      // Retour vers App.jsx
+
       if (onLogin) {
         onLogin();
       }

@@ -59,13 +59,8 @@ urlpatterns = [
         name='login'
     ),
 
-    # Vérification de la base de données
-    path(
-        'verification-base/',
-        verification_base,
-        name='verification_base'
-    ),
 
+ 
     # API CRUD
     path(
         '',
