@@ -74,16 +74,16 @@ function Login({ onLogin }) {
         onLogin();
       }
 
-    } catch (error) {
-      console.error(error);
+  //   } catch (error) {
+  //     console.error(error);
 
-      setError(
-        "Impossible de contacter le serveur Django."
-      );
+  //     setError(
+  //       "Impossible de contacter le serveur Django."
+  //     );
 
-      setLoading(false);
-    }
-  };
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <div className="login-page">
