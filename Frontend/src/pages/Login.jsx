@@ -24,7 +24,7 @@ function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      const response = await fetch("https://gestion-hotel-1-lssj.onrender.com/api/login/", { 
+      const response = await fetch("https://gestion-hotel-backend-x1st.onrender.com/api/login/", {
         method: "POST",
 
         headers: {
